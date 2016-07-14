@@ -135,3 +135,28 @@ class DBConnection:
 				row[k] = v;
 			data.append(row);
 		return data;
+
+	def getJoinedRecords(self, tableName1, tableName2, joiningKeyTable1, joiningKeyTable2, joiningType="LEFT", filtersTable1={}, filtersTable2={}):
+		whereClause = [];
+		for k,v in filtersTable1.items():
+			whereClause.append("table1.%s='%s'" %(k,v));
+		#whereClause = " AND ".join(whereClause);
+		for k,v in filtersTable2.items():
+			whereClause.append("table2.%s='%s'" %(k,v));
+		whereClause = " AND ".join(whereClause);
+		
+		sql = u"SELECT * FROM %s table1 %s JOIN %s table2 ON table1.%s = table2.%s" %(tableName1, joiningType, tableName2, joiningKeyTable1, joiningKeyTable2);
+		if whereClause !="":
+			sql = u"SELECT * FROM %s table1 %s JOIN %s table2 ON table1.%s = table2.%s WHERE %s " %(tableName1, joiningType, tableName2, joiningKeyTable1, joiningKeyTable2,  whereClause);
+		cursor = self.runSQL(sql);
+		if cursor == None:
+			return [];
+		names = list(map(lambda x: x[0], cursor.description));
+		data = [];
+		for e in cursor.fetchall():
+			row = dict();
+			for k,v in zip(names, e):
+				print k,v
+				row[k] = v;
+			data.append(row);
+		return data;
