@@ -24,9 +24,22 @@ class DBConnection:
 	
 	def __init__(self, dbName):
 		self.logger = Logging.defaults(__name__);
-		self.conn = sqlite3.connect(dbName);
-		self.lock = Lock();
 		self.dbName = dbName;
+		self.setup();
+
+	def setup(self):
+		self.conn = sqlite3.connect(self.dbName);
+		self.lock = Lock();
+
+	def __getstate__(self):
+		odict = self.__dict__.copy()
+		del odict['conn']
+		del odict['lock']
+		return odict
+
+	def __setstate__(self, dct):
+		self.__dict__.update(dct)
+		self.setup();
 
 	def close(self):
 		self.conn.close();
