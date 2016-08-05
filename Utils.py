@@ -31,3 +31,16 @@ class Logging:
 	@staticmethod
 	def getLogger(name):
 		return logging.getLogger("QuaintScience:%s" %(name));
+
+class Misc:
+
+	@staticmethod
+	def get(obj, path):
+		#print path
+		if len(path)==0:
+			return obj;
+		else:
+			if path[0] in obj:
+				return Misc.get(obj[path[0]], path[1:])
+			else:
+				return None;

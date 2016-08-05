@@ -1,0 +1,5 @@
+sessions*
+*.pyc
+*.db
+*.sqlite
+defaultFabricWorker*
