@@ -129,14 +129,33 @@ class DBConnection:
 		sql = u"UPDATE %s SET %s WHERE %s" %(tableName, updateStr, filterStr);
 		self.runSQL(sql, updateValues);
 
-	def getRecords(self, tableName, filters={}):
+	def getRecords(self, tableName, filters={}, noResults=-1, pagination={}, direction="forward", sortKey="", sortDirection="descending"):
 		whereClause = [];
 		for k,v in filters.items():
 			whereClause.append("%s='%s'" %(k,v));
+		for k,v in pagination.items():
+			if direction=="forward":
+				whereClause.append("%s>'%s'" %(k,v));
+			elif direction=="backward":
+				whereClause.append("%s<'%s'" %(k,v));
 		whereClause = " AND ".join(whereClause);
 		sql = u"SELECT * FROM %s" %(tableName);
-		if whereClause !="":
-			sql = u"SELECT * FROM %s WHERE %s" %(tableName, whereClause);
+		
+		whereSql = "";
+		if whereClause!="":
+			whereSql ="WHERE %s" %(whereClause);
+		limitSql ="";
+		if noResults>0:
+			limitSql = "LIMIT %s" %(noResults);
+
+		sortSql = "";
+		if sortKey!="" and not sortKey is None:
+			sortSql = "ORDER BY %s" %(sortKey)
+			if sortDirection=="descending":
+				sortSql = "%s DESC" %(sortSql);
+
+		sql = u"SELECT * FROM %s %s %s %s" %(tableName, whereSql, sortSql, limitSql);
+
 		cursor = self.runSQL(sql);
 		if cursor == None:
 			return [];
