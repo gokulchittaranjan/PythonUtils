@@ -129,7 +129,7 @@ class DBConnection:
 		sql = u"UPDATE %s SET %s WHERE %s" %(tableName, updateStr, filterStr);
 		self.runSQL(sql, updateValues);
 
-	def getRecords(self, tableName, filters={}, noResults=-1, pagination={}, direction="forward"):
+	def getRecords(self, tableName, filters={}, noResults=-1, pagination={}, direction="forward", sortKey="", sortDirection="descending"):
 		whereClause = [];
 		for k,v in filters.items():
 			whereClause.append("%s='%s'" %(k,v));
@@ -147,7 +147,14 @@ class DBConnection:
 		limitSql ="";
 		if noResults>0:
 			limitSql = "LIMIT %s" %(noResults);
-		sql = u"SELECT * FROM %s %s %s" %(tableName, whereSql, limitSql);
+
+		sortSql = "";
+		if sortKey!="" and not sortKey is None:
+			sortSql = "ORDER BY %s" %(sortKey)
+			if sortDirection=="descending":
+				sortSql = "%s DESC" %(sortSql);
+
+		sql = u"SELECT * FROM %s %s %s %s" %(tableName, whereSql, sortSql, limitSql);
 
 		cursor = self.runSQL(sql);
 		if cursor == None:
